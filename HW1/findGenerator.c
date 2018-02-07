@@ -22,7 +22,7 @@ int findGen(int x) {
 		found = true;
 		for (int r=1; r<x-1; r++) {
 			int res = (long)pow((double) g, (double) r)%x;
-			printf("g: %d, r: %d, res: %d\n", g, r, res);
+			//printf("g: %d, r: %d, res: %d\n", g, r, res);
 			if (res==1) {
 				//printf("%d"pow(g,r));
 				found = false;
