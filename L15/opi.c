@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
   long long int Ncircle = 0;
 
   double start_time = omp_get_wtime();
-  #pragma omp parallel reduction(+:Ncircle) 
+  #pragma omp parallel 
   {
     long int seed = Nthreads;
     srand48_r(seed, drandData+0);
@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
     Ntotal=0;
     Ncircle=0;
 
-    #pragma omp for
+    #pragma omp for reduction(+:Ncircle)
     for (long long int n=0; n<Ntrials; n++) {
       double rand1;
       double rand2;
