@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
 
       if (n%100 ==0) {
         double pi = 4.0*Ncircle/ (double) (n);
-        printf("Our estimate of pi is %g \n", pi);
+        //printf("Our estimate of pi is %g \n", pi);
       }
     }
   }
