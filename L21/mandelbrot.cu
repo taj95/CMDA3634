@@ -21,6 +21,7 @@ To create an image with 4096 x 4096 pixels (last argument will be used to set nu
 #include "png_util.h"
 
 // Q2a: add include for CUDA header file here:
+#include "cuda.h"
 
 #define MXITER 1000
 
@@ -32,7 +33,7 @@ typedef struct {
 }complex_t;
 
 // return iterations before z leaves mandelbrot set for given c
-int testpoint(complex_t c){
+__device__ int testpoint(complex_t c){
   
   int iter;
 
@@ -62,7 +63,7 @@ int testpoint(complex_t c){
 // record the  iteration counts in the count array
 
 // Q2c: transform this function into a CUDA kernel
-void  mandelbrot(int Nre, int Nim, complex_t cmin, complex_t cmax, float *count){ 
+__global__ void  mandelbrot(int Nre, int Nim, complex_t cmin, complex_t cmax, float *count){ 
   int n,m;
 
   complex_t c;
@@ -94,8 +95,24 @@ int main(int argc, char **argv){
 
   // Q2b: set the number of threads per block and the number of blocks here:
 
-  // storage for the iteration counts
+  //i
+  float *d_a, *d_b, *d_c;
+
+  //allocate memory on the Device with cudaMalloc
+  cudaMalloc(&d_a,N*sizeof(float));
+  cudaMalloc(&d_b,N*sizeof(float));
+  cudaMalloc(&d_c,N*sizeof(float));
+  
   float *count = (float*) malloc(Nre*Nim*sizeof(float));
+
+  //ii
+  int Bx = Nthreads;
+  int By = Nthreads;
+  dim3 B(Bx, By, 1); // Bx*By threads in thread-block
+
+  int Gx = (Nre+Nthreads-1)/Bx;
+  int Gy = (Nim+Nthreads-1)/By;
+  dim3 G(Gx, Gy, 1); // Gx*Gy grid of thread-blocks
 
   // Parameters for a bounding box for "c" that generates an interesting image
   const float centRe = -.759856, centIm= .125547;
@@ -111,11 +128,18 @@ int main(int argc, char **argv){
 
   clock_t start = clock(); //start time in CPU cycles
 
+  //iii
   // compute mandelbrot set
-  mandelbrot(Nre, Nim, cmin, cmax, count); 
+  mandelbrot<<<G, B>>>(Nre, Nim, cmin, cmax, count); 
+    
+  //iv
+  cudaMemcpy(d_a,h_a,N*sizeOf(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_b,h_b,N*sizeOf(double), cudaMemcpyHostToDevice);
+
+
+  // storage for the iteration counts
   
   clock_t end = clock(); //start time in CPU cycles
-  
   // print elapsed time
   printf("elapsed = %f\n", ((double)(end-start))/CLOCKS_PER_SEC);
 
