@@ -71,16 +71,10 @@ __global__ void  mandelbrot(int Nre, int Nim, complex_t cmin, complex_t cmax, fl
   double dr = (cmax.r-cmin.r)/(Nre-1);
   double di = (cmax.i-cmin.i)/(Nim-1);;
 
-  for(n=0;n<Nim;++n){
-    for(m=0;m<Nre;++m){
-      c.r = cmin.r + dr*m;
-      c.i = cmin.i + di*n;
+  c.r = cmin.r + dr*m; // need to change m and n
+  c.i = cmin.i + di*n;
       
-      count[m+n*Nre] = testpoint(c);
-      
-    }
-  }
-
+  count[m+n*Nre] = testpoint(c);
 }
 
 int main(int argc, char **argv){
